@@ -1,0 +1,38 @@
+{
+  "version": "12.0.0",
+  "name": "CEO-Dios Empire V12",
+  "mode": "HEYGEN_VIDEO_ONLY",
+  "schedule": {
+    "cycles_per_day": 7,
+    "cron_times_utc": ["00:00", "03:25", "06:50", "10:15", "13:40", "17:05", "20:30"]
+  },
+  "heygen": {
+    "voice_english": "Vgdihz1vTYXMr9BMj8OZ",
+    "voice_spanish": "626ca51acb2e496f8dcee8d7591fda3c",
+    "talking_photo": "baed4e6bc0d946eb81c3e22e69f2742e",
+    "dimensions": {
+      "youtube": {"width": 1920, "height": 1080},
+      "facebook": {"width": 1080, "height": 1920}
+    }
+  },
+  "distribution": {
+    "midlife_reset": {
+      "platform": "youtube",
+      "channel": "@michelgonzalez-q4o"
+    },
+    "cuba_content": {
+      "platform": "facebook",
+      "page_id": "117307510398180",
+      "page_name": "Patria y Vida"
+    }
+  },
+  "monetization": {
+    "amazon_affiliate": "https://amzn.to/midlifereset",
+    "website": "https://midliferesetlab.com",
+    "shopify": "https://mildeliferesetlab.myshopify.com"
+  },
+  "content_per_cycle": {
+    "midlife_videos": 1,
+    "cuba_videos": 1
+  }
+}

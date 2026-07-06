@@ -1,0 +1,91 @@
+name: CEO-Dios Empire V12 - Video Engine (7x/day)
+
+on:
+  schedule:
+    # 7 executions daily (~every 3.4 hours) UTC
+    # 00:00, 03:25, 06:50, 10:15, 13:40, 17:05, 20:30
+    - cron: '0 0 * * *'
+    - cron: '25 3 * * *'
+    - cron: '50 6 * * *'
+    - cron: '15 10 * * *'
+    - cron: '40 13 * * *'
+    - cron: '5 17 * * *'
+    - cron: '30 20 * * *'
+  workflow_dispatch: # Manual trigger
+
+concurrency:
+  group: "empire-v12-loop"
+  cancel-in-progress: false
+
+jobs:
+  video-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45  # HeyGen rendering needs time
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Execute V12 Master Loop (HeyGen Videos)
+        env:
+          # Core APIs
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+          
+          # YouTube Distribution
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          
+          # Facebook Distribution
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN_PATRIA }}
+          FACEBOOK_PAGE_ID: '117307510398180'
+          
+          # Trading (optional)
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY_ID }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          
+          # Monetization
+          AMAZON_AFFILIATE_LINK: ${{ secrets.AMAZON_AFFILIATE_LINK }}
+          
+          # Reporting
+          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK }}
+          ZAPIER_YOUTUBE_WEBHOOK: ${{ secrets.ZAPIER_YOUTUBE_WEBHOOK }}
+          
+          # Leads
+          HUBSPOT_API_KEY: ${{ secrets.HUBSPOT_API_KEY }}
+        run: npm run master-loop
+
+      - name: Report Status to Webhook
+        if: always()
+        env:
+          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK }}
+        run: |
+          curl -s -X POST "${ZAPIER_WEBHOOK_URL:-https://hooks.zapier.com/fallback}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"version\": \"V12\",
+              \"status\": \"${{ job.status }}\",
+              \"timestamp\": \"$(date -u -Iseconds)\",
+              \"run_id\": \"${{ github.run_id }}\",
+              \"run_number\": ${{ github.run_number }},
+              \"mode\": \"heygen_video_only\"
+            }" || true
+
+      - name: Upload Logs Artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v12-error-logs-${{ github.run_number }}
+          path: |
+            *.log
+            /tmp/v12_*.json
+          retention-days: 7
