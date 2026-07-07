@@ -1,15 +1,17 @@
 /**
- * CEO-DIOS EMPIRE V12 - MASTER LOOP
- * AUTONOMOUS VIDEO ENGINE: 7 HeyGen videos/day
+ * CEO-DIOS EMPIRE V20 GOD LEVEL - MASTER LOOP
+ * AUTONOMOUS REVENUE & EDUCATION EMPIRE
  * 
- * Cycle: Trading -> Generate Video Scripts -> HeyGen Render -> Distribute
- * YouTube (Midlife Reset) + Facebook (Cuba/Patria y Vida)
+ * Combines: Video Engine (HeyGen) + Self-Study God AI + Shopify/WhatsApp + Trading + Leads + Content
+ * Self-improving, self-teaching, revenue-generating machine
+ * Advanced AI: GPT-4o with Chain-of-Thought, Self-Reflection, Future Market Prediction
  */
 
 const { generateContent } = require('./content/generator');
 const { distributeContent } = require('./publishing/distributor');
+const { autonomousSelfStudy } = require('../lib/selfStudyAgent');
 
-// Trading and Leads are optional modules
+// Trading and Leads optional
 let executeTradingCycle, manageLeads;
 try { executeTradingCycle = require('./trading/alpaca-engine').executeTradingCycle; } catch(e) { executeTradingCycle = null; }
 try { manageLeads = require('./leads/hubspot-manager').manageLeads; } catch(e) { manageLeads = null; }
@@ -18,22 +20,38 @@ async function masterLoop() {
   const startTime = Date.now();
   const results = {
     timestamp: new Date().toISOString(),
-    version: 'V12.0',
-    mode: 'HEYGEN_VIDEO_ONLY',
+    version: 'V20.0 GOD LEVEL',
+    mode: 'FULL_AUTONOMOUS_EMPIRE',
     modules: {},
   };
 
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  🏆 CEO-DIOS EMPIRE V12.0 - AUTONOMOUS VIDEO ENGINE');
+  console.log('  🏆 CEO-DIOS EMPIRE V20 GOD LEVEL - AUTONOMOUS REVENUE & EDUCATION EMPIRE');
   console.log(`  ⏰ ${results.timestamp}`);
-  console.log('  🎬 Mode: 7 HeyGen videos/day (ZERO static images)');
-  console.log('  📺 YouTube: Midlife Reset Lab | 📘 Facebook: Patria y Vida');
+  console.log('  🎬 7 HeyGen videos/day + Self-Study AI God + Shopify/WhatsApp + Trading');
+  console.log('  🧠 Advanced AI: GPT-4o CoT + Self-Reflection + Future Market Prediction 2026-2030');
+  console.log('  📺 YouTube + Facebook | 💰 Revenue Autonomous | 📚 Finelo-style Education');
   console.log('═══════════════════════════════════════════════════════════════');
 
-  // === MODULE 1: TRADING (if configured) ===
+  // === MODULE 0: SELF-STUDY GOD AI (NEW V20 - runs in parallel or first) ===
+  try {
+    console.log('\n▶ [SELF-STUDY GOD] Iniciando auto-estudio masivo con IA más poderosa...');
+    const studyResult = await autonomousSelfStudy();
+    results.modules.SELF_STUDY = {
+      status: 'success',
+      topics_studied: studyResult.studied?.length || 0,
+      money_impact: studyResult.totalMoneyImpact || 0,
+    };
+    console.log(`✓ [SELF-STUDY GOD] Completado - ${studyResult.studied?.length || 0} temas, $${studyResult.totalMoneyImpact || 0} revenue potential`);
+  } catch (error) {
+    results.modules.SELF_STUDY = { status: 'error', error: error.message };
+    console.error(`✗ [SELF-STUDY GOD] ${error.message}`);
+  }
+
+  // === MODULE 1: TRADING (enhanced with AI insights) ===
   if (executeTradingCycle && process.env.ALPACA_API_KEY) {
     try {
-      console.log('\n▶ [TRADING] Starting algorithmic cycle...');
+      console.log('\n▶ [TRADING] Starting algorithmic cycle (AI-enhanced)...');
       const tradingResult = await executeTradingCycle();
       results.modules.TRADING = { status: 'success', data: tradingResult };
       console.log('✓ [TRADING] Completed');
@@ -45,10 +63,10 @@ async function masterLoop() {
     results.modules.TRADING = { status: 'skipped', reason: 'not_configured' };
   }
 
-  // === MODULE 2: VIDEO CONTENT GENERATION ===
+  // === MODULE 2: VIDEO CONTENT GENERATION (AI-god enhanced) ===
   let generatedContent = [];
   try {
-    console.log('\n▶ [CONTENT] Generating HeyGen video scripts + rendering...');
+    console.log('\n▶ [CONTENT] Generating HeyGen video scripts with AI God insights...');
     const contentResult = await generateContent();
     generatedContent = contentResult.content || [];
     results.modules.CONTENT = {
@@ -65,9 +83,9 @@ async function masterLoop() {
     console.error(`✗ [CONTENT] ${error.message}`);
   }
 
-  // === MODULE 3: DISTRIBUTION (YouTube + Facebook) ===
+  // === MODULE 3: DISTRIBUTION ===
   try {
-    console.log('\n▶ [PUBLISHING] Distributing videos to YouTube + Facebook...');
+    console.log('\n▶ [PUBLISHING] Distributing videos...');
     const distResult = await distributeContent(generatedContent);
     results.modules.PUBLISHING = { status: 'success', data: distResult };
     console.log(`✓ [PUBLISHING] ${distResult.published} videos published`);
@@ -76,7 +94,7 @@ async function masterLoop() {
     console.error(`✗ [PUBLISHING] ${error.message}`);
   }
 
-  // === MODULE 4: LEADS (if configured) ===
+  // === MODULE 4: LEADS ===
   if (manageLeads && process.env.HUBSPOT_API_KEY) {
     try {
       console.log('\n▶ [LEADS] Managing leads...');
@@ -91,8 +109,8 @@ async function masterLoop() {
   results.elapsed_seconds = parseFloat(elapsed);
 
   console.log(`\n═══════════════════════════════════════════════════════════════`);
-  console.log(`  🏁 V12 MASTER LOOP COMPLETE - ${elapsed}s`);
-  console.log(`  📊 ${JSON.stringify(Object.entries(results.modules).map(([k, v]) => `${k}:${v.status}`))}`);
+  console.log(`  🏁 V20 GOD MASTER LOOP COMPLETE - ${elapsed}s`);
+  console.log(`  📊 Modules: ${JSON.stringify(Object.entries(results.modules).map(([k, v]) => `${k}:${v.status}`))}`);
   console.log('═══════════════════════════════════════════════════════════════');
 
   // Report to webhook
@@ -112,11 +130,11 @@ async function masterLoop() {
 // Execute
 masterLoop()
   .then((r) => {
-    console.log(`\nExit: SUCCESS (${r.modules.CONTENT?.videos_generated || 0} videos)`);
+    console.log(`\nExit: SUCCESS V20 GOD (${r.modules.CONTENT?.videos_generated || 0} videos + Self-Study)`);
     process.exit(0);
   })
   .catch((e) => {
-    console.error('FATAL:', e);
+    console.error('FATAL V20:', e);
     process.exit(1);
   });
 
