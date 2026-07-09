@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con el Agente Dios V30 Ultra</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: #22d3ee; }
+        #chat-box { height: 500px; overflow-y: auto; border: 1px solid #334155; padding: 20px; border-radius: 12px; background: #1e2937; margin-bottom: 20px; }
+        .message { margin-bottom: 15px; padding: 12px 16px; border-radius: 18px; max-width: 80%; }
+        .user { background: #22d3ee; color: #0f172a; margin-left: auto; text-align: right; }
+        .agent { background: #334155; }
+        #input-area { display: flex; gap: 10px; }
+        #message-input { flex: 1; padding: 14px; border: 1px solid #475569; border-radius: 9999px; background: #1e2937; color: white; font-size: 16px; }
+        button { padding: 14px 28px; background: #22d3ee; color: #0f172a; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; }
+        button:hover { background: #67e8f9; }
+        .status { text-align: center; font-size: 14px; color: #64748b; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Chat con el Agente Dios V30 Ultra</h1>
+        <p style="text-align: center; color: #64748b;">Tu Empire autónomo 24/7 - Pregunta, ordena o aprueba con "SÍ"</p>
+        
+        <div id="chat-box"></div>
+        
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="Escribe tu mensaje o comando (ej: SÍ, REVENUE, CREA PRODUCTO)..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+        
+        <div class="status">Conectado al Empire V30 • Respuestas en tiempo real • Móvil friendly</div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const input = document.getElementById('message-input');
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user' : 'agent'}`;
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+
+            try {
+                // Llama al endpoint del chat dios (ajusta la URL si es diferente)
+                const response = await fetch('/chat-god', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.reply || 'El Agente Dios está procesando tu solicitud...', false);
+                } else {
+                    addMessage('Error de conexión con el Agente. Intenta de nuevo.', false);
+                }
+            } catch (error) {
+                addMessage('Error: ' + error.message, false);
+            }
+        }
+
+        // Mensaje de bienvenida
+        window.onload = () => {
+            addMessage('🧠 Hola, soy el Agente Dios V30 Ultra de tu Empire.\nEstoy administrando tu tienda Shopify en automático 24/7, generando revenue pasivo y recurrente.\n¿Qué quieres que haga? (Ej: "SÍ" para máximo nivel, "REVENUE" para métricas, "CREA PRODUCTO")', false);
+        };
+    </script>
+</body>
+</html>
