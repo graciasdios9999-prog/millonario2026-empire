@@ -1,30 +1,24 @@
 {
   "name": "millonario2026-empire",
   "version": "20.0.0",
-  "description": "CEO-Dios Empire V20 God Level - Autonomous Revenue & Education Empire (Self-learning, Shopify, Video Engine, Trading, DB)",
+  "description": "CEO-Dios Empire V20 — Commercial Engine (Stripe first-sale + Shopify)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "trading": "node src/trading/alpaca-engine.js",
-    "content": "node src/content/generator.js",
-    "publish": "node src/publishing/distributor.js",
-    "leads": "node src/leads/hubspot-manager.js",
     "master-loop": "node src/master-loop.js",
-    "heygen-status": "node src/content/heygen-status.js",
-    "test-cycle": "node src/test-cycle.js",
-    "self-study": "node src/self-study-agent.js",
-    "test": "node test/master-loop.test.js",
-    "test:ci": "node test/master-loop.test.js"
+    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js && node test/fase9-revenue.test.js",
+    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js && node test/fase9-revenue.test.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
-    "openai": "^4.50.0",
     "axios": "^1.7.0",
+    "better-sqlite3": "^9.6.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.0",
     "form-data": "^4.0.0",
     "node-cron": "^3.0.3",
-    "express": "^4.18.0",
-    "dotenv": "^16.4.0",
-    "better-sqlite3": "^9.6.0"
+    "openai": "^4.50.0",
+    "stripe": "^17.0.0"
   },
   "engines": {
     "node": "20.x"
