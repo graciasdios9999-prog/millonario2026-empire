@@ -1,62 +1,68 @@
 /**
- * Shopify Webhook Handler - V30 Ultra 10/10
- * Handles incoming Shopify webhooks (orders/create, orders/updated, products/update, etc.)
- * Triggers autonomous actions (WhatsApp notifications, revenue actions, inventory sync)
+ * Shopify Webhook Handler
+ * HMAC verification; orders → VERIFIED revenue ledger.
  */
+'use strict';
 
 const express = require('express');
 const crypto = require('crypto');
-const { autonomousSelfStudy } = require('../../lib/selfStudyAgent');
-const CREDENTIALS = require('../../lib/config').default || require('../../lib/config');
+const logger = require('../../lib/logger');
+const revenueLedger = require('../../lib/revenueLedger');
 
 const router = express.Router();
 
-const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET || CREDENTIALS.SHOPIFY_API_SECRET;
-
-function verifyShopifyWebhook(body, hmacHeader) {
-  if (!hmacHeader || !SHOPIFY_WEBHOOK_SECRET) return true; // In production always verify
-  const hash = crypto
-    .createHmac('sha256', SHOPIFY_WEBHOOK_SECRET)
-    .update(body, 'utf8')
-    .digest('base64');
-  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(hmacHeader));
+function verifyShopifyWebhook(rawBody, hmacHeader) {
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET || '';
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') return false;
+    return true;
+  }
+  if (!hmacHeader) return false;
+  const hash = crypto.createHmac('sha256', secret).update(rawBody, 'utf8').digest('base64');
+  try {
+    return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(hmacHeader));
+  } catch (_) {
+    return false;
+  }
 }
 
-// Generic webhook handler
-router.post('/webhook-shopify/:topic', express.raw({ type: 'application/json' }), async (req, res) => {
-  const hmac = req.headers['x-shopify-hmac-sha256'];
-  const body = req.body.toString();
+router.post(
+  '/webhook-shopify/:topic',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const hmac = req.headers['x-shopify-hmac-sha256'];
+    const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : String(req.body || '');
 
-  if (!verifyShopifyWebhook(body, hmac)) {
-    console.log('❌ Invalid Shopify webhook signature');
-    return res.sendStatus(401);
+    if (!verifyShopifyWebhook(raw, hmac)) {
+      logger.failed('shopify.webhook', { error: 'invalid_signature' });
+      return res.sendStatus(401);
+    }
+
+    let data;
+    try {
+      data = JSON.parse(raw || '{}');
+    } catch (e) {
+      return res.sendStatus(400);
+    }
+
+    const topic = req.params.topic;
+    logger.info('shopify.webhook', 'SUCCESS', { topic });
+
+    if (
+      topic === 'orders-create' ||
+      topic === 'orders/create' ||
+      topic === 'orders-updated' ||
+      topic === 'orders/updated'
+    ) {
+      try {
+        revenueLedger.ingestShopifyOrder(data);
+      } catch (e) {
+        logger.failed('shopify.webhook.order', { error: e.message });
+      }
+    }
+
+    res.sendStatus(200);
   }
-
-  let data;
-  try {
-    data = JSON.parse(body);
-  } catch (e) {
-    return res.sendStatus(400);
-  }
-
-  const topic = req.params.topic;
-  console.log(`🛍️ Shopify webhook received: ${topic}`);
-
-  // Autonomous actions based on topic
-  if (topic === 'orders/create' || topic === 'orders/updated') {
-    console.log('📦 New/Updated order detected - Triggering autonomous actions');
-    // Example: Send WhatsApp confirmation + revenue action
-    // await sendOrderNotification(data);
-    // Trigger self-study or revenue actions
-  }
-
-  if (topic === 'products/update') {
-    console.log('📦 Product updated - Syncing stores if needed');
-    // await syncStores();
-  }
-
-  // Always respond quickly to Shopify
-  res.sendStatus(200);
-});
+);
 
 module.exports = router;
