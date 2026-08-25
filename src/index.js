@@ -166,6 +166,8 @@ app.get('/metrics/orders', (req, res) => {
   res.json({
     ORDERS_VERIFIED: snap.ORDERS_VERIFIED,
     REVENUE_VERIFIED: snap.REVENUE_VERIFIED,
+    REVENUE_REFUNDED: snap.REVENUE_REFUNDED,
+    NET_REVENUE: snap.NET_REVENUE,
     AOV_VERIFIED: snap.AOV_VERIFIED,
     note: snap.note,
   });
@@ -173,6 +175,36 @@ app.get('/metrics/orders', (req, res) => {
 app.get('/metrics/catalog', (req, res) => res.json(productEngine.catalogArchitecture()));
 app.get('/catalog/architecture', (req, res) => res.json(productEngine.catalogArchitecture()));
 app.get('/decisions', (req, res) => res.json(ceoDecisions.prioritize()));
+
+app.get('/metrics/funnel', (req, res) => {
+  const a = analytics.summary();
+  const rev = revenueLedger.snapshot();
+  res.json({
+    funnel: a.funnel || a.counts,
+    rates_observed: a.rates_observed,
+    revenue: {
+      VERIFIED: rev.REVENUE_VERIFIED,
+      REFUNDED: rev.REVENUE_REFUNDED,
+      NET: rev.NET_REVENUE,
+      ORDERS: rev.ORDERS_VERIFIED,
+      AOV: rev.AOV_VERIFIED,
+    },
+    note: a.note,
+  });
+});
+
+app.get('/metrics/attribution', (req, res) => {
+  const rev = revenueLedger.snapshot();
+  const a = analytics.summary();
+  res.json({
+    revenue_by_source: rev.by_source || {},
+    revenue_by_campaign: rev.by_campaign || {},
+    revenue_by_product: rev.by_product || {},
+    events_by_source: a.by_source || {},
+    events_by_campaign: a.by_campaign || {},
+    note: 'Revenue attribution only from VERIFIED orders with metadata.',
+  });
+});
 
 app.get('/stripe/catalog', (req, res) => {
   res.json({
