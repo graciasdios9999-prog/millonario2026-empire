@@ -12,7 +12,8 @@
     "master-loop": "node src/master-loop.js",
     "heygen-status": "node src/content/heygen-status.js",
     "test-cycle": "node src/test-cycle.js",
-    "self-study": "node src/self-study-agent.js"
+    "self-study": "node src/self-study-agent.js",
+    "test": "node test/master-loop.test.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
