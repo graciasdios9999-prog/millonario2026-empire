@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía Premium Midlife Reset — $47</title>
+  <meta name="description" content="Guía digital completa de reset hormonal y energético para mujeres 40+. PDF + checklists + protocolos. Entrega inmediata." />
+  <meta property="og:title" content="Guía Premium Midlife Reset — $47" />
+  <meta property="og:description" content="Reset hormonal y energético para mujeres 40+. Acceso digital inmediato." />
+  <style>
+    :root { --bg:#0b1220; --card:#121a2b; --text:#e8eefc; --muted:#9aa8c7; --accent:#5eead4; --btn:#14b8a6; --btn2:#0f766e; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:radial-gradient(1200px 600px at 20% -10%,#1e3a5f 0%,var(--bg) 55%); color:var(--text); min-height:100vh; }
+    .wrap { max-width:720px; margin:0 auto; padding:28px 18px 60px; }
+    .badge { display:inline-block; background:#0f766e33; color:var(--accent); border:1px solid #14b8a655; border-radius:999px; padding:6px 12px; font-size:13px; margin-bottom:16px; }
+    h1 { font-size:clamp(1.6rem,4vw,2.2rem); line-height:1.2; margin:0 0 12px; }
+    .price { font-size:2rem; font-weight:700; color:var(--accent); margin:12px 0; }
+    .price s { color:var(--muted); font-size:1.1rem; margin-right:8px; font-weight:500; }
+    .card { background:var(--card); border:1px solid #243149; border-radius:16px; padding:22px; margin:18px 0; }
+    ul { margin:0; padding-left:1.1rem; color:var(--muted); }
+    li { margin:8px 0; }
+    label { display:block; font-size:13px; color:var(--muted); margin:12px 0 6px; }
+    input { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #334155; background:#0b1220; color:var(--text); font-size:16px; }
+    button { width:100%; margin-top:16px; padding:14px 18px; border:none; border-radius:12px; background:linear-gradient(180deg,var(--btn),var(--btn2)); color:#042f2e; font-weight:700; font-size:17px; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .err { color:#fca5a5; font-size:14px; margin-top:10px; display:none; }
+    .note { font-size:12px; color:var(--muted); margin-top:14px; text-align:center; }
+    .upsell { font-size:14px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">OFERTA ENTRY · ENTREGA DIGITAL</span>
+    <h1>Guía Premium Midlife Reset</h1>
+    <p style="color:var(--muted); margin:0;">Reset hormonal y energético para mujeres 40+. PDF + checklists + protocolos Látiz. Acceso inmediato.</p>
+    <div class="price"><s>$67</s> $47 USD</div>
+    <div class="card">
+      <ul>
+        <li>Guía completa de reset hormonal y energético</li>
+        <li>Checklists diarios y protocolos prácticos</li>
+        <li>Entrega digital inmediata tras el pago</li>
+        <li>Base para el Curso 30 Días y el Bundle completo</li>
+      </ul>
+    </div>
+    <div class="card">
+      <form id="buy">
+        <label for="email">Email (recibo + acceso)</label>
+        <input id="email" type="email" required placeholder="tu@email.com" autocomplete="email" />
+        <button type="submit" id="btn">Comprar ahora — $47</button>
+        <div class="err" id="err"></div>
+        <p class="note">Pago seguro con Stripe. No se almacena tu tarjeta en este servidor.</p>
+      </form>
+    </div>
+    <p class="upsell">Después de la compra podrás escalar al <strong>Curso 30 Días ($97)</strong> o al <strong>Bundle completo ($147)</strong>.</p>
+  </div>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var sessionId = 's_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      fetch('/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'page_view', sessionId: sessionId, source: params.get('utm_source') || 'direct', campaignId: params.get('utm_campaign') || null, productId: 'guia-premium', idempotencyKey: 'pv_' + sessionId }) }).catch(function () {});
+      fetch('/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'product_view', sessionId: sessionId, productId: 'guia-premium', source: params.get('utm_source') || 'direct', campaignId: params.get('utm_campaign') || null, idempotencyKey: 'prod_' + sessionId }) }).catch(function () {});
+      document.getElementById('buy').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var btn = document.getElementById('btn');
+        var err = document.getElementById('err');
+        var email = document.getElementById('email').value.trim();
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Redirigiendo a pago…';
+        try {
+          await fetch('/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, source: params.get('utm_source') || 'offer_landing', campaign: params.get('utm_campaign') || null, productInterest: 'guia-premium' }) });
+          var res = await fetch('/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ priceKey: 'guia-premium', dryRun: false, customerEmail: email, sessionId: sessionId, source: params.get('utm_source') || 'offer_landing', campaignId: params.get('utm_campaign') || null, metadata: { campaign_id: params.get('utm_campaign') || '', utm_source: params.get('utm_source') || '', utm_medium: params.get('utm_medium') || '' } }) });
+          var data = await res.json();
+          if (data.url) { window.location.href = data.url; return; }
+          throw new Error(data.error || data.reason || 'No se pudo iniciar el checkout');
+        } catch (ex) {
+          err.textContent = ex.message || 'Error de pago';
+          err.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Comprar ahora — $47';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,24 +1,23 @@
 {
   "name": "millonario2026-empire",
   "version": "20.0.0",
-  "description": "CEO-Dios Empire V20 — Commercial Engine (Shopify + Stripe Checkout)",
+  "description": "CEO-Dios Empire V20 — Commercial Engine (Stripe first-sale + Shopify)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js",
-    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js",
     "master-loop": "node src/master-loop.js",
-    "start": "node src/index.js"
+    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js",
+    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
-    "openai": "^4.50.0",
     "axios": "^1.7.0",
+    "better-sqlite3": "^9.6.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.0",
     "form-data": "^4.0.0",
     "node-cron": "^3.0.3",
-    "express": "^4.18.0",
-    "dotenv": "^16.4.0",
-    "better-sqlite3": "^9.6.0",
+    "openai": "^4.50.0",
     "stripe": "^17.0.0"
   },
   "engines": {
