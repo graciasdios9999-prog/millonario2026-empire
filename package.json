@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "master-loop": "node src/master-loop.js",
-    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js",
-    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js"
+    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js && node test/fase9-revenue.test.js",
+    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js && node test/first-sale.test.js && node test/fase9-revenue.test.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
