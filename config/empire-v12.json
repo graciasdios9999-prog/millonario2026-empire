@@ -1,7 +1,7 @@
 {
-  "version": "12.0.0",
-  "name": "CEO-Dios Empire V12",
-  "mode": "HEYGEN_VIDEO_ONLY",
+  "version": "20.0.0",
+  "name": "CEO-Dios Empire V20 God Level",
+  "mode": "FULL_AUTONOMOUS_EMPIRE",
   "schedule": {
     "cycles_per_day": 7,
     "cron_times_utc": ["00:00", "03:25", "06:50", "10:15", "13:40", "17:05", "20:30"]
