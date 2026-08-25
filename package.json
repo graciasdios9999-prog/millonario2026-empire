@@ -1,21 +1,14 @@
 {
   "name": "millonario2026-empire",
   "version": "20.0.0",
-  "description": "CEO-Dios Empire V20 — Commercial Engine (Shopify products, verified orders, offers, analytics)",
+  "description": "CEO-Dios Empire V20 — Commercial Engine (Shopify + Stripe Checkout)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "trading": "node src/trading/alpaca-engine.js",
-    "content": "node src/content/generator.js",
-    "publish": "node src/publishing/distributor.js",
-    "leads": "node src/leads/hubspot-manager.js",
+    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js",
+    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js && node test/stripe-checkout.test.js",
     "master-loop": "node src/master-loop.js",
-    "heygen-status": "node src/content/heygen-status.js",
-    "test-cycle": "node src/test-cycle.js",
-    "self-study": "node src/self-study-agent.js",
-    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js",
-    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js",
-    "products:dry": "node -e \"require('./lib/productEngine').createProduct({title:'Smoke Test',tier:'ENTRY',dryRun:true}).then(r=>console.log(JSON.stringify(r,null,2)))\""
+    "start": "node src/index.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
@@ -25,7 +18,8 @@
     "node-cron": "^3.0.3",
     "express": "^4.18.0",
     "dotenv": "^16.4.0",
-    "better-sqlite3": "^9.6.0"
+    "better-sqlite3": "^9.6.0",
+    "stripe": "^17.0.0"
   },
   "engines": {
     "node": "20.x"
