@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies (clean)
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+        env:
+          OPENAI_API_KEY: ''
+          WHATSAPP_ACCESS_TOKEN: ''
+          WHATSAPP_PHONE_NUMBER_ID: ''
+          TRIGGER_SECRET: ''
+
+      - name: Security audit (high+)
+        run: npm audit --audit-level=high || true
+
+      - name: Verify no hardcoded secrets in critical files
+        run: |
+          if grep -rE 'EAASNyZ|EAAX[A-Za-z0-9]{20,}|sk-proj-|github_pat_|AIzaSy' --include='*.js' --include='*.json' --include='*.yml' . ; then
+            echo "Possible hardcoded secret pattern found"
+            exit 1
+          fi
+          echo "No obvious hardcoded secret patterns detected"

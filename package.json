@@ -1,7 +1,7 @@
 {
   "name": "millonario2026-empire",
   "version": "20.0.0",
-  "description": "CEO-Dios Empire V20 God Level - Autonomous Revenue & Education Empire (Self-learning, Shopify, WhatsApp, Video Engine, Trading, DB)",
+  "description": "CEO-Dios Empire V20 God Level - Autonomous Revenue & Education Empire (Self-learning, Shopify, Video Engine, Trading, DB)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -12,7 +12,9 @@
     "master-loop": "node src/master-loop.js",
     "heygen-status": "node src/content/heygen-status.js",
     "test-cycle": "node src/test-cycle.js",
-    "self-study": "node src/self-study-agent.js"
+    "self-study": "node src/self-study-agent.js",
+    "test": "node test/master-loop.test.js",
+    "test:ci": "node test/master-loop.test.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.0.0",
@@ -25,6 +27,6 @@
     "better-sqlite3": "^9.6.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   }
 }
