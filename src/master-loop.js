@@ -1,17 +1,12 @@
 /**
  * CEO-DIOS EMPIRE V20 GOD LEVEL - MASTER LOOP
- * AUTONOMOUS REVENUE & EDUCATION EMPIRE
- * 
- * Combines: Video Engine (HeyGen) + Self-Study God AI + Shopify/WhatsApp + Trading + Leads + Content
- * Self-improving, self-teaching, revenue-generating machine
- * Advanced AI: GPT-4o with Chain-of-Thought, Self-Reflection, Future Market Prediction
+ * Combines: Video Engine (HeyGen) + Self-Study AI + Shopify + Trading + Leads + Content
  */
 
 const { generateContent } = require('./content/generator');
 const { distributeContent } = require('./publishing/distributor');
 const { autonomousSelfStudy } = require('../lib/selfStudyAgent');
 
-// Trading and Leads optional
 let executeTradingCycle, manageLeads;
 try { executeTradingCycle = require('./trading/alpaca-engine').executeTradingCycle; } catch(e) { executeTradingCycle = null; }
 try { manageLeads = require('./leads/hubspot-manager').manageLeads; } catch(e) { manageLeads = null; }
@@ -25,48 +20,41 @@ async function masterLoop() {
     modules: {},
   };
 
-  console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  🏆 CEO-DIOS EMPIRE V20 GOD LEVEL - AUTONOMOUS REVENUE & EDUCATION EMPIRE');
-  console.log(`  ⏰ ${results.timestamp}`);
-  console.log('  🎬 7 HeyGen videos/day + Self-Study AI God + Shopify/WhatsApp + Trading');
-  console.log('  🧠 Advanced AI: GPT-4o CoT + Self-Reflection + Future Market Prediction 2026-2030');
-  console.log('  📺 YouTube + Facebook | 💰 Revenue Autonomous | 📚 Finelo-style Education');
-  console.log('═══════════════════════════════════════════════════════════════');
+  console.log('=== CEO-DIOS EMPIRE V20 MASTER LOOP ===');
+  console.log(`time=${results.timestamp}`);
+  console.log('ESTIMATED revenue signals only until Shopify orders verified');
 
-  // === MODULE 0: SELF-STUDY GOD AI (NEW V20 - runs in parallel or first) ===
   try {
-    console.log('\n▶ [SELF-STUDY GOD] Iniciando auto-estudio masivo con IA más poderosa...');
+    console.log('[SELF-STUDY] starting');
     const studyResult = await autonomousSelfStudy();
     results.modules.SELF_STUDY = {
       status: 'success',
       topics_studied: studyResult.studied?.length || 0,
-      money_impact: studyResult.totalMoneyImpact || 0,
+      estimated_revenue_usd: studyResult.totalMoneyImpact || 0,
     };
-    console.log(`✓ [SELF-STUDY GOD] Completado - ${studyResult.studied?.length || 0} temas, $${studyResult.totalMoneyImpact || 0} revenue potential`);
+    console.log(`[SELF-STUDY] topics=${studyResult.studied?.length || 0} ESTIMATED revenue USD $${studyResult.totalMoneyImpact || 0} (not verified sales)`);
   } catch (error) {
     results.modules.SELF_STUDY = { status: 'error', error: error.message };
-    console.error(`✗ [SELF-STUDY GOD] ${error.message}`);
+    console.error(`[SELF-STUDY] ${error.message}`);
   }
 
-  // === MODULE 1: TRADING (enhanced with AI insights) ===
   if (executeTradingCycle && process.env.ALPACA_API_KEY) {
     try {
-      console.log('\n▶ [TRADING] Starting algorithmic cycle (AI-enhanced)...');
+      console.log('[TRADING] starting');
       const tradingResult = await executeTradingCycle();
       results.modules.TRADING = { status: 'success', data: tradingResult };
-      console.log('✓ [TRADING] Completed');
+      console.log('[TRADING] completed');
     } catch (error) {
       results.modules.TRADING = { status: 'error', error: error.message };
-      console.error(`✗ [TRADING] ${error.message}`);
+      console.error(`[TRADING] ${error.message}`);
     }
   } else {
     results.modules.TRADING = { status: 'skipped', reason: 'not_configured' };
   }
 
-  // === MODULE 2: VIDEO CONTENT GENERATION (AI-god enhanced) ===
   let generatedContent = [];
   try {
-    console.log('\n▶ [CONTENT] Generating HeyGen video scripts with AI God insights...');
+    console.log('[CONTENT] generating');
     const contentResult = await generateContent();
     generatedContent = contentResult.content || [];
     results.modules.CONTENT = {
@@ -77,27 +65,25 @@ async function masterLoop() {
         cuba: generatedContent.filter(c => c.type === 'cuba_content').length,
       },
     };
-    console.log(`✓ [CONTENT] ${contentResult.totalGenerated} videos rendered`);
+    console.log(`[CONTENT] videos=${contentResult.totalGenerated}`);
   } catch (error) {
     results.modules.CONTENT = { status: 'error', error: error.message };
-    console.error(`✗ [CONTENT] ${error.message}`);
+    console.error(`[CONTENT] ${error.message}`);
   }
 
-  // === MODULE 3: DISTRIBUTION ===
   try {
-    console.log('\n▶ [PUBLISHING] Distributing videos...');
+    console.log('[PUBLISHING] distributing');
     const distResult = await distributeContent(generatedContent);
     results.modules.PUBLISHING = { status: 'success', data: distResult };
-    console.log(`✓ [PUBLISHING] ${distResult.published} videos published`);
+    console.log(`[PUBLISHING] published=${distResult.published}`);
   } catch (error) {
     results.modules.PUBLISHING = { status: 'error', error: error.message };
-    console.error(`✗ [PUBLISHING] ${error.message}`);
+    console.error(`[PUBLISHING] ${error.message}`);
   }
 
-  // === MODULE 4: LEADS ===
   if (manageLeads && process.env.HUBSPOT_API_KEY) {
     try {
-      console.log('\n▶ [LEADS] Managing leads...');
+      console.log('[LEADS] managing');
       const leadsResult = await manageLeads();
       results.modules.LEADS = { status: 'success', data: leadsResult };
     } catch (error) {
@@ -108,34 +94,34 @@ async function masterLoop() {
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
   results.elapsed_seconds = parseFloat(elapsed);
 
-  console.log(`\n═══════════════════════════════════════════════════════════════`);
-  console.log(`  🏁 V20 GOD MASTER LOOP COMPLETE - ${elapsed}s`);
-  console.log(`  📊 Modules: ${JSON.stringify(Object.entries(results.modules).map(([k, v]) => `${k}:${v.status}`))}`);
-  console.log('═══════════════════════════════════════════════════════════════');
+  console.log(`=== MASTER LOOP COMPLETE ${elapsed}s ===`);
+  console.log(`modules=${JSON.stringify(Object.entries(results.modules).map(([k, v]) => k + ':' + v.status))}`);
 
-  // Report to webhook
   if (process.env.ZAPIER_WEBHOOK_URL) {
     try {
       const axios = require('axios');
       await axios.post(process.env.ZAPIER_WEBHOOK_URL, results);
-      console.log('  📡 Results reported to webhook');
+      console.log('[WEBHOOK] reported');
     } catch (e) {
-      console.error('  Webhook report failed:', e.message);
+      console.error('[WEBHOOK] failed:', e.message);
     }
   }
 
   return results;
 }
 
-// Execute
-masterLoop()
-  .then((r) => {
-    console.log(`\nExit: SUCCESS V20 GOD (${r.modules.CONTENT?.videos_generated || 0} videos + Self-Study)`);
-    process.exit(0);
-  })
-  .catch((e) => {
-    console.error('FATAL V20:', e);
-    process.exit(1);
-  });
+// Only auto-run when executed directly (CLI / npm run master-loop / GitHub Actions).
+// Prevents side-effect execution on require() from index.js.
+if (require.main === module) {
+  masterLoop()
+    .then((r) => {
+      console.log(`Exit: SUCCESS V20 (${r.modules.CONTENT?.videos_generated || 0} videos + Self-Study)`);
+      process.exit(0);
+    })
+    .catch((e) => {
+      console.error('FATAL V20:', e);
+      process.exit(1);
+    });
+}
 
 module.exports = { masterLoop };
