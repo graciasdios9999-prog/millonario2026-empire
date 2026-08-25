@@ -1,7 +1,7 @@
 {
   "name": "millonario2026-empire",
   "version": "20.0.0",
-  "description": "CEO-Dios Empire V20 — Revenue Engine (Shopify products, verified orders, automation)",
+  "description": "CEO-Dios Empire V20 — Commercial Engine (Shopify products, verified orders, offers, analytics)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -13,8 +13,8 @@
     "heygen-status": "node src/content/heygen-status.js",
     "test-cycle": "node src/test-cycle.js",
     "self-study": "node src/self-study-agent.js",
-    "test": "node test/master-loop.test.js && node test/revenue-product.test.js",
-    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js",
+    "test": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js",
+    "test:ci": "node test/master-loop.test.js && node test/revenue-product.test.js && node test/commercial.test.js",
     "products:dry": "node -e \"require('./lib/productEngine').createProduct({title:'Smoke Test',tier:'ENTRY',dryRun:true}).then(r=>console.log(JSON.stringify(r,null,2)))\""
   },
   "dependencies": {
