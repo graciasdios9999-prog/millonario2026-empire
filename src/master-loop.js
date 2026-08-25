@@ -127,15 +127,19 @@ async function masterLoop() {
   return results;
 }
 
-// Execute
-masterLoop()
-  .then((r) => {
-    console.log(`\nExit: SUCCESS V20 GOD (${r.modules.CONTENT?.videos_generated || 0} videos + Self-Study)`);
-    process.exit(0);
-  })
-  .catch((e) => {
-    console.error('FATAL V20:', e);
-    process.exit(1);
-  });
+// Export for use by index.js and other modules.
+// Only auto-run when this file is executed directly (CLI / npm run master-loop).
+// Prevents side-effect execution on require() which caused double loops and unwanted starts.
+if (require.main === module) {
+  masterLoop()
+    .then((r) => {
+      console.log(`\nExit: SUCCESS V20 GOD (${r.modules.CONTENT?.videos_generated || 0} videos + Self-Study)`);
+      process.exit(0);
+    })
+    .catch((e) => {
+      console.error('FATAL V20:', e);
+      process.exit(1);
+    });
+}
 
 module.exports = { masterLoop };
