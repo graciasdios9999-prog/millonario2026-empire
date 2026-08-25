@@ -1,5 +1,5 @@
 /**
- * CEO-DIOS EMPIRE V12 - Entry Point
+ * CEO-DIOS EMPIRE V20 GOD LEVEL - Entry Point
  * Express server + cron fallback for non-GitHub-Actions environments
  */
 
@@ -15,10 +15,10 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
-    name: 'CEO-Dios Empire V12',
+    name: 'CEO-Dios Empire V20 God Level',
     status: 'operational',
-    version: '12.0.0',
-    mode: 'HEYGEN_VIDEO_ONLY',
+    version: '20.0.0',
+    mode: 'FULL_AUTONOMOUS_EMPIRE',
     platforms: { youtube: 'Midlife Reset Lab', facebook: 'Patria y Vida' },
     uptime: process.uptime(),
     lastRun: global.lastRun || null,
@@ -38,21 +38,22 @@ app.post('/trigger', async (req, res) => {
 app.get('/status', (req, res) => {
   res.json({
     status: 'alive',
-    version: '12.0.0',
+    version: '20.0.0',
     modules: {
       heygen: !!process.env.HEYGEN_API_KEY,
       openai: !!process.env.OPENAI_API_KEY,
       youtube: !!process.env.YOUTUBE_REFRESH_TOKEN,
       facebook: !!process.env.FACEBOOK_PAGE_TOKEN,
       trading: !!process.env.ALPACA_API_KEY,
+      whatsapp: !!process.env.WHATSAPP_ACCESS_TOKEN,
     },
     lastRun: global.lastRun || 'never',
   });
 });
 
-// Fallback cron: every 3.5 hours (7x/day)
+// Fallback cron: every ~3.5 hours (7x/day)
 cron.schedule('0 0,3,7,10,14,17,21 * * *', async () => {
-  console.log('[CRON] V12 Master Loop triggering...');
+  console.log('[CRON] V20 Master Loop triggering...');
   try {
     await masterLoop();
     global.lastRun = new Date().toISOString();
@@ -62,6 +63,6 @@ cron.schedule('0 0,3,7,10,14,17,21 * * *', async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Empire V12 server running on port ${PORT}`);
-  console.log('Mode: HeyGen Video-Only | 7x/day');
+  console.log(`Empire V20 God Level server running on port ${PORT}`);
+  console.log('Mode: Full Autonomous Empire | 7x/day');
 });
