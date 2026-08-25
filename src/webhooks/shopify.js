@@ -1,61 +1,64 @@
 /**
- * Shopify Webhook Handler - V30 Ultra 10/10
- * Handles incoming Shopify webhooks (orders/create, orders/updated, products/update, etc.)
- * Triggers autonomous actions (WhatsApp notifications, revenue actions, inventory sync)
+ * Shopify webhooks — HMAC, order → VERIFIED revenue, event idempotency.
  */
+'use strict';
 
 const express = require('express');
 const crypto = require('crypto');
-const { autonomousSelfStudy } = require('../../lib/selfStudyAgent');
-const CREDENTIALS = require('../../lib/config').default || require('../../lib/config');
+const logger = require('../../lib/logger');
+const revenueLedger = require('../../lib/revenueLedger');
+const analytics = require('../../lib/analytics');
+const store = require('../../lib/store');
 
 const router = express.Router();
 
-const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET || CREDENTIALS.SHOPIFY_API_SECRET;
-
-function verifyShopifyWebhook(body, hmacHeader) {
-  if (!hmacHeader || !SHOPIFY_WEBHOOK_SECRET) return true; // In production always verify
-  const hash = crypto
-    .createHmac('sha256', SHOPIFY_WEBHOOK_SECRET)
-    .update(body, 'utf8')
-    .digest('base64');
-  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(hmacHeader));
+function verifyShopifyWebhook(rawBody, hmacHeader) {
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET || '';
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') return false;
+    return true;
+  }
+  if (!hmacHeader) return false;
+  const hash = crypto.createHmac('sha256', secret).update(rawBody, 'utf8').digest('base64');
+  try { return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(hmacHeader)); }
+  catch (_) { return false; }
 }
 
-// Generic webhook handler
+function eventIdempotencyKey(topic, data) {
+  const id = data && (data.id || data.admin_graphql_api_id || data.order_number);
+  return String(topic) + ':' + String(id || crypto.createHash('sha256').update(JSON.stringify(data || {})).digest('hex').slice(0, 16));
+}
+
 router.post('/webhook-shopify/:topic', express.raw({ type: 'application/json' }), async (req, res) => {
   const hmac = req.headers['x-shopify-hmac-sha256'];
-  const body = req.body.toString();
-
-  if (!verifyShopifyWebhook(body, hmac)) {
-    console.log('❌ Invalid Shopify webhook signature');
+  const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : String(req.body || '');
+  if (!verifyShopifyWebhook(raw, hmac)) {
+    logger.failed('shopify.webhook', { error: 'invalid_signature' });
     return res.sendStatus(401);
   }
-
   let data;
-  try {
-    data = JSON.parse(body);
-  } catch (e) {
-    return res.sendStatus(400);
-  }
-
+  try { data = JSON.parse(raw || '{}'); } catch (e) { return res.sendStatus(400); }
   const topic = req.params.topic;
-  console.log(`🛍️ Shopify webhook received: ${topic}`);
-
-  // Autonomous actions based on topic
-  if (topic === 'orders/create' || topic === 'orders/updated') {
-    console.log('📦 New/Updated order detected - Triggering autonomous actions');
-    // Example: Send WhatsApp confirmation + revenue action
-    // await sendOrderNotification(data);
-    // Trigger self-study or revenue actions
+  const key = eventIdempotencyKey(topic, data);
+  const state = store.load();
+  if (!state.webhook_events) state.webhook_events = {};
+  if (state.webhook_events[key]) {
+    logger.info('shopify.webhook', 'SUCCESS', { topic, duplicate: true });
+    return res.sendStatus(200);
   }
-
-  if (topic === 'products/update') {
-    console.log('📦 Product updated - Syncing stores if needed');
-    // await syncStores();
+  state.webhook_events[key] = { at: new Date().toISOString(), topic };
+  const keys = Object.keys(state.webhook_events);
+  if (keys.length > 5000) keys.slice(0, keys.length - 4000).forEach((k) => delete state.webhook_events[k]);
+  store.save(state);
+  logger.info('shopify.webhook', 'SUCCESS', { topic });
+  if (topic === 'orders-create' || topic === 'orders/create' || topic === 'orders-updated' || topic === 'orders/updated') {
+    try {
+      revenueLedger.ingestShopifyOrder(data);
+      analytics.track('purchase', { order_id: data.id, value: data.total_price, currency: data.currency || 'USD', source: 'shopify_webhook' });
+    } catch (e) {
+      logger.failed('shopify.webhook.order', { error: e.message });
+    }
   }
-
-  // Always respond quickly to Shopify
   res.sendStatus(200);
 });
 
