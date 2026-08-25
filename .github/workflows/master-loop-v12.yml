@@ -1,4 +1,4 @@
-name: CEO-Dios Empire V12 - Video Engine (7x/day)
+name: CEO-Dios Empire V20 - Master Loop (7x/day)
 
 on:
   schedule:
@@ -14,7 +14,7 @@ on:
   workflow_dispatch: # Manual trigger
 
 concurrency:
-  group: "empire-v12-loop"
+  group: "empire-v20-loop"
   cancel-in-progress: false
 
 jobs:
@@ -30,11 +30,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies (clean)
+        run: npm ci
 
-      - name: Execute V12 Master Loop (HeyGen Videos)
+      - name: Execute V20 Master Loop
         env:
           # Core APIs
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -62,6 +63,11 @@ jobs:
           
           # Leads
           HUBSPOT_API_KEY: ${{ secrets.HUBSPOT_API_KEY }}
+
+          # WhatsApp (required after security fix)
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          ADMIN_WHATSAPP_NUMBER: ${{ secrets.ADMIN_WHATSAPP_NUMBER }}
         run: npm run master-loop
 
       - name: Report Status to Webhook
@@ -72,20 +78,20 @@ jobs:
           curl -s -X POST "${ZAPIER_WEBHOOK_URL:-https://hooks.zapier.com/fallback}" \
             -H "Content-Type: application/json" \
             -d "{
-              \"version\": \"V12\",
+              \"version\": \"V20\",
               \"status\": \"${{ job.status }}\",
               \"timestamp\": \"$(date -u -Iseconds)\",
               \"run_id\": \"${{ github.run_id }}\",
               \"run_number\": ${{ github.run_number }},
-              \"mode\": \"heygen_video_only\"
+              \"mode\": \"full_autonomous_empire\"
             }" || true
 
       - name: Upload Logs Artifact
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: v12-error-logs-${{ github.run_number }}
+          name: v20-error-logs-${{ github.run_number }}
           path: |
             *.log
-            /tmp/v12_*.json
+            /tmp/v20_*.json
           retention-days: 7
